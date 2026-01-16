@@ -1,18 +1,839 @@
-# This .gitignore is appropriate for repositories deployed to GitHub Pages and using
-# a Gemfile as specified at https://github.com/github/pages-gem#conventional
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>2025–26 NFL Quarterbacks Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-alt: #0b1020;
+      --accent: #00e0ff;
+      --accent-soft: rgba(0, 224, 255, 0.12);
+      --text: #f5f7ff;
+      --muted: #9aa0c2;
+      --border: #1f2438;
+      --danger: #ff4b6a;
+      --success: #3dd68c;
+      --warning: #ffb347;
+      --card-radius: 14px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
+    }
 
-# Basic Jekyll gitignores (synchronize to Jekyll.gitignore)
-_site/
-.sass-cache/
-.jekyll-cache/
-.jekyll-metadata
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-# Additional Ruby/bundler ignore for when you run: bundle install
-/vendor
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1b2a4a 0, #050816 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
 
-# Specific ignore for GitHub Pages
-# GitHub Pages will always use its own deployed version of pages-gem 
-# This means GitHub Pages will NOT use your Gemfile.lock and therefore it is
-# counterproductive to check this file into the repository.
-# Details at https://github.com/github/pages-gem/issues/768
-Gemfile.lock
+    .app {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    header {
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .title-block {
+      max-width: 640px;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 3vw, 2.6rem);
+      letter-spacing: 0.03em;
+      margin-bottom: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: rgba(0, 224, 255, 0.08);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.5;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .meta span strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #0b1020, #050816);
+      border-radius: var(--card-radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 10px;
+      margin-bottom: 18px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filters label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .filters input,
+    .filters select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #050816;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease,
+        background 0.15s ease;
+    }
+
+    .filters input:focus,
+    .filters select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(0, 224, 255, 0.4);
+      background: #050a18;
+    }
+
+    .filters .badge {
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(0, 224, 255, 0.4);
+      justify-self: flex-end;
+      text-align: center;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--card-radius);
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, #151a30 0, #050816 55%);
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      font-size: 0.85rem;
+    }
+
+    thead {
+      background: rgba(10, 16, 40, 0.9);
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(31, 36, 56, 0.9);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+      z-index: 1;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(8, 12, 30, 0.85);
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 224, 255, 0.06);
+    }
+
+    .qb-name {
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .team {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .tier-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border: 1px solid;
+    }
+
+    .tier-elite {
+      border-color: var(--success);
+      color: var(--success);
+      background: rgba(61, 214, 140, 0.08);
+    }
+
+    .tier-franchise {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 224, 255, 0.08);
+    }
+
+    .tier-solid {
+      border-color: var(--warning);
+      color: var(--warning);
+      background: rgba(255, 179, 71, 0.08);
+    }
+
+    .tier-volatile {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: rgba(255, 75, 106, 0.08);
+    }
+
+    .tier-rookie {
+      border-color: #c792ea;
+      color: #c792ea;
+      background: rgba(199, 146, 234, 0.08);
+    }
+
+    .stat-line {
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .notes {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .source-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #7f85a8;
+    }
+
+    .footer {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 4px 2px 0;
+    }
+
+    .footer strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .meta {
+        text-align: left;
+      }
+      .filters {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .filters .badge {
+        justify-self: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-block">
+        <h1>
+          2025–26 NFL Quarterbacks
+          <span class="pill">Interactive QB Dashboard</span>
+        </h1>
+        <p class="subtitle">
+          Snapshot of projected and actual primary starting quarterbacks for the 2025 NFL season,
+          with tiers, basic 2025 stat lines where available, and quick context pulled from public
+          rankings and starter lists.
+        </p>
+      </div>
+      <div class="meta">
+        <span><strong>Season focus:</strong> 2025 regular season → 2025–26 playoffs</span>
+        <span><strong>Data type:</strong> Public articles, rankings &amp; projections</span>
+        <span><strong>Last refreshed:</strong> Jan 2026 (manual snapshot)</span>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="filters">
+        <div>
+          <label for="search">Search (QB or team)</label>
+          <input
+            id="search"
+            type="text"
+            placeholder="e.g. Drake Maye, Bills, Patriots"
+          />
+        </div>
+        <div>
+          <label for="tierFilter">Tier</label>
+          <select id="tierFilter">
+            <option value="all">All tiers</option>
+            <option value="Elite">Elite</option>
+            <option value="Franchise">Franchise</option>
+            <option value="Solid starter">Solid starter</option>
+            <option value="Volatile / bridge">Volatile / bridge</option>
+            <option value="Rookie / unknown">Rookie / unknown</option>
+          </select>
+        </div>
+        <div>
+          <label for="confFilter">Conference</label>
+          <select id="confFilter">
+            <option value="all">AFC + NFC</option>
+            <option value="AFC">AFC only</option>
+            <option value="NFC">NFC only</option>
+          </select>
+        </div>
+        <div>
+          <label for="sortBy">Sort by</label>
+          <select id="sortBy">
+            <option value="team">Team (A → Z)</option>
+            <option value="name">QB name (A → Z)</option>
+            <option value="rank">Approx. 2025 rank (low → high)</option>
+          </select>
+        </div>
+        <div class="badge" id="countBadge">
+          0 QBs shown
+        </div>
+      </div>
+    </section>
+
+    <section class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Quarterback</th>
+            <th>Team / Conf.</th>
+            <th>Tier</th>
+            <th>2025 snapshot</th>
+            <th>Context &amp; notes</th>
+          </tr>
+        </thead>
+        <tbody id="qbTableBody">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+    </section>
+
+    <div class="footer">
+      <span>
+        <strong>Note:</strong> This is a hand‑built snapshot, not an official NFL database. Some
+        depth‑chart battles and late‑season changes are simplified to “primary starter.”
+      </span>
+      <span>
+        <strong>Extend it:</strong> You can add more QBs, stats, or advanced filters directly in the
+        <code>qbs</code> array in the script.
+      </span>
+    </div>
+  </div>
+
+  <script>
+    // --- Data model: 2025 primary / projected starters snapshot ---
+    // rankApprox: lower = better (rough ordering from public 2025 rankings / projections)
+
+    const qbs = [
+      {
+        name: "Patrick Mahomes",
+        team: "Kansas City Chiefs",
+        conference: "AFC",
+        tier: "Elite",
+        rankApprox: 1,
+        stats2025:
+          "Reg. season: high‑end efficiency; still top‑tier by PFF grade over last seasons.",
+        notes:
+          "Still viewed as the league’s standard at QB, though some metrics show a slightly smaller gap to the field.",
+        source: "PFF 2025 QB rankings, power rankings.",
+      },
+      {
+        name: "Joe Burrow",
+        team: "Cincinnati Bengals",
+        conference: "AFC",
+        tier: "Elite",
+        rankApprox: 2,
+        stats2025:
+          "Recent 3‑year passing grade ~93.5; overall grade ~95.2, success rate among league leaders.",
+        notes:
+          "When healthy, graded as one of the most efficient pure passers in football, pushing Mahomes for the top spot.",
+        source: "PFF 2025 QB rankings.",
+      },
+      {
+        name: "Josh Allen",
+        team: "Buffalo Bills",
+        conference: "AFC",
+        tier: "Elite",
+        rankApprox: 3,
+        stats2025:
+          "2025: 17 g | 69.3% | 3668 yds | 8.0 YPA | 25 TD | 10 INT | 579 rush yds | 14 rush TD.",
+        notes:
+          "Dual‑threat monster; turnover‑worthy plays exist, but rushing value and explosive plays keep him in the elite tier.",
+        source: "NFL.com 2025 QB rankings.",
+      },
+      {
+        name: "Drake Maye",
+        team: "New England Patriots",
+        conference: "AFC",
+        tier: "Elite",
+        rankApprox: 4,
+        stats2025:
+          "2025: 17 g | 72.0% | 4394 yds | 8.9 YPA | 31 TD | 8 INT | 450 rush yds | 4 rush TD.",
+        notes:
+          "Second NFL season, first with Josh McDaniels as OC; vaulted into elite tier with accuracy and explosive playmaking.",
+        source: "NFL.com 2025 QB rankings (Tier 1).",
+      },
+      {
+        name: "Matthew Stafford",
+        team: "Los Angeles Rams",
+        conference: "NFC",
+        tier: "Franchise",
+        rankApprox: 5,
+        stats2025:
+          "2025: 17 g | 65.0% | 4707 yds | 7.9 YPA | 46 TD | 8 INT.",
+        notes:
+          "Veteran still dealing at a high level in a QB‑friendly system; big‑time throw production remains elite.",
+        source: "NFL.com 2025 QB rankings.",
+      },
+      {
+        name: "Justin Herbert",
+        team: "Los Angeles Chargers",
+        conference: "AFC",
+        tier: "Franchise",
+        rankApprox: 6,
+        stats2025:
+          "2025: 16 g | 66.4% | 3727 yds | 7.3 YPA | 26 TD | 13 INT | 498 rush yds.",
+        notes:
+          "Toolsy franchise QB with top‑10 production; situation and supporting cast heavily influence ceiling.",
+        source: "NFL.com 2025 QB rankings.",
+      },
+      {
+        name: "Dak Prescott",
+        team: "Dallas Cowboys",
+        conference: "NFC",
+        tier: "Franchise",
+        rankApprox: 7,
+        stats2025:
+          "2025: strong passing volume and efficiency; remained among league leaders in TD passes.",
+        notes:
+          "High‑end pocket passer; questions are more about playoff ceiling than regular‑season production.",
+        source: "NFL.com 2025 QB rankings, fantasy projections.",
+      },
+      {
+        name: "Jalen Hurts",
+        team: "Philadelphia Eagles",
+        conference: "NFC",
+        tier: "Franchise",
+        rankApprox: 8,
+        stats2025:
+          "Post‑2024 Super Bowl run boosted perception; dual‑threat with strong rushing TD production.",
+        notes:
+          "Physical runner and improving passer; offensive structure and supporting cast are key to his top‑10 status.",
+        source: "2025 QB power rankings & projections.",
+      },
+      {
+        name: "Lamar Jackson",
+        team: "Baltimore Ravens",
+        conference: "AFC",
+        tier: "Elite",
+        rankApprox: 9,
+        stats2025:
+          "MVP‑caliber dual‑threat profile; consistently among league leaders in rushing value at QB.",
+        notes:
+          "Offense is tailored to his strengths; when healthy, he’s one of the hardest QBs to game‑plan for.",
+        source: "2025 starter lists and power rankings.",
+      },
+      {
+        name: "C.J. Stroud",
+        team: "Houston Texans",
+        conference: "AFC",
+        tier: "Franchise",
+        rankApprox: 10,
+        stats2025:
+          "Follow‑up to elite rookie year kept him in the top‑10 conversation as a pure passer.",
+        notes:
+          "Accuracy, processing, and ball placement drive his value; viewed as a long‑term franchise cornerstone.",
+        source: "2025 QB power rankings.",
+      },
+      {
+        name: "Trevor Lawrence",
+        team: "Jacksonville Jaguars",
+        conference: "AFC",
+        tier: "Franchise",
+        rankApprox: 11,
+        stats2025:
+          "Helped fuel a notable upswing in JAX offense compared with pre‑Lawrence years.",
+        notes:
+          "Still some inconsistency, but physical tools and flashes keep him in the upper‑tier starter bucket.",
+        source: "Bleacher Report 2025 QB review.",
+      },
+      {
+        name: "Brock Purdy",
+        team: "San Francisco 49ers",
+        conference: "NFC",
+        tier: "Solid starter",
+        rankApprox: 12,
+        stats2025:
+          "Highly efficient in Shanahan’s system; strong EPA/play metrics with elite supporting cast.",
+        notes:
+          "Debate continues about system vs. talent, but production in structure is undeniable.",
+        source: "2025 playoff QB rankings.",
+      },
+      {
+        name: "Jayden Daniels",
+        team: "Washington Commanders",
+        conference: "NFC",
+        tier: "Rookie / unknown",
+        rankApprox: 18,
+        stats2025:
+          "Early‑career dual‑threat flashes; rushing ability adds fantasy and real‑life value.",
+        notes:
+          "Ceiling tied to how quickly he adapts as a passer and how the offense protects him physically.",
+        source: "2025 QB projections.",
+      },
+      {
+        name: "Bo Nix",
+        team: "Denver Broncos",
+        conference: "AFC",
+        tier: "Rookie / unknown",
+        rankApprox: 20,
+        stats2025:
+          "Divisional‑round starter in 2025 playoffs; mixed performances but valuable experience.",
+        notes:
+          "Viewed as a system‑fit QB whose ceiling depends on scheme stability and supporting cast.",
+        source: "2025 playoff QB rankings.",
+      },
+      {
+        name: "Bryce Young",
+        team: "Carolina Panthers",
+        conference: "NFC",
+        tier: "Volatile / bridge",
+        rankApprox: 22,
+        stats2025:
+          "Rebound signs after rough rookie year; still questions about size and durability.",
+        notes:
+          "Trajectory improved with better coaching and supporting cast, but long‑term ceiling still being evaluated.",
+        source: "2025 QB projections and season reviews.",
+      },
+      {
+        name: "Will Levis",
+        team: "Tennessee Titans",
+        conference: "AFC",
+        tier: "Volatile / bridge",
+        rankApprox: 24,
+        stats2025:
+          "Big‑arm profile with streaky accuracy; flashes of high‑end play mixed with inconsistency.",
+        notes:
+          "Viewed as a high‑variance starter; 2025 seen as a prove‑it stretch for long‑term job security.",
+        source: "2025 QB power rankings.",
+      },
+      {
+        name: "Tua Tagovailoa",
+        team: "Miami Dolphins",
+        conference: "AFC",
+        tier: "Solid starter",
+        rankApprox: 13,
+        stats2025:
+          "High efficiency in timing‑based offense; strong YAC production from receivers.",
+        notes:
+          "Health and late‑season performance are the main questions; when on, he’s a top‑10 efficiency passer.",
+        source: "2025 QB rankings & projections.",
+      },
+      {
+        name: "Jared Goff",
+        team: "Detroit Lions",
+        conference: "NFC",
+        tier: "Solid starter",
+        rankApprox: 14,
+        stats2025:
+          "Productive in a well‑designed offense with strong OL; limited mobility but good structure execution.",
+        notes:
+          "Firmly in the quality‑starter tier; ceiling tied to supporting cast and play‑calling.",
+        source: "2025 QB rankings.",
+      },
+      {
+        name: "Kirk Cousins",
+        team: "Atlanta Falcons",
+        conference: "NFC",
+        tier: "Solid starter",
+        rankApprox: 15,
+        stats2025:
+          "Accurate pocket passer; coming off injury but still projected as primary starter when healthy.",
+        notes:
+          "Known quantity: strong regular‑season production, questions in high‑leverage playoff spots.",
+        source: "2025 starter projections.",
+      },
+      {
+        name: "Jordan Love",
+        team: "Green Bay Packers",
+        conference: "NFC",
+        tier: "Franchise",
+        rankApprox: 16,
+        stats2025:
+          "Showed significant growth as a starter; flashes of high‑end arm talent and playmaking.",
+        notes:
+          "If the 2024–25 trajectory continues, he settles into the long‑term franchise‑QB bucket.",
+        source: "2025 QB power rankings.",
+      },
+      {
+        name: "Justin Fields",
+        team: "Pittsburgh Steelers",
+        conference: "AFC",
+        tier: "Volatile / bridge",
+        rankApprox: 25,
+        stats2025:
+          "Rushing remains a major strength; passing consistency and processing still under the microscope.",
+        notes:
+          "2025 viewed as a critical evaluation year in a new environment.",
+        source: "2025 projections and depth‑chart notes.",
+      },
+      {
+        name: "Geno Smith",
+        team: "Seattle Seahawks",
+        conference: "NFC",
+        tier: "Solid starter",
+        rankApprox: 21,
+        stats2025:
+          "Above‑average efficiency with some volatility; strong intermediate accuracy.",
+        notes:
+          "Comfortably in the mid‑tier starter range; age and contract shape long‑term outlook.",
+        source: "2025 QB rankings.",
+      },
+      {
+        name: "Deshaun Watson",
+        team: "Cleveland Browns",
+        conference: "AFC",
+        tier: "Volatile / bridge",
+        rankApprox: 23,
+        stats2025:
+          "On‑field play since return has been inconsistent relative to earlier career peak.",
+        notes:
+          "Contract keeps him in the picture, but performance has not matched prior elite expectations.",
+        source: "2025 QB reviews.",
+      },
+      {
+        name: "Daniel Jones",
+        team: "New York Giants",
+        conference: "NFC",
+        tier: "Volatile / bridge",
+        rankApprox: 26,
+        stats2025:
+          "Injuries and inconsistency have clouded long‑term outlook; mobility remains a plus.",
+        notes:
+          "Viewed more as a bridge‑type starter unless there’s a major leap in efficiency and availability.",
+        source: "2025 QB rankings.",
+      },
+      {
+        name: "Baker Mayfield",
+        team: "Tampa Bay Buccaneers",
+        conference: "NFC",
+        tier: "Solid starter",
+        rankApprox: 19,
+        stats2025:
+          "Re‑established himself as a viable starter with stretches of strong play.",
+        notes:
+          "Still some volatility, but 2024–25 run likely extended his starting window.",
+        source: "2025 QB rankings.",
+      },
+      {
+        name: "Anthony Richardson",
+        team: "Indianapolis Colts",
+        conference: "AFC",
+        tier: "Rookie / unknown",
+        rankApprox: 17,
+        stats2025:
+          "Limited early‑career sample due to injuries; rushing and arm talent are obvious.",
+        notes:
+          "Ceiling is extremely high if health and accuracy stabilize; 2025 is a key development year.",
+        source: "2025 projections.",
+      },
+      {
+        name: "Caleb Williams",
+        team: "Chicago Bears",
+        conference: "NFC",
+        tier: "Rookie / unknown",
+        rankApprox: 18,
+        stats2025:
+          "Top draft pick with elite college production; early NFL sample still forming.",
+        notes:
+          "Expectations are franchise‑QB level; how quickly he adapts to NFL defenses will define the Bears’ trajectory.",
+        source: "2025 rookie QB coverage.",
+      },
+      {
+        name: "Gardner Minshew",
+        team: "Kansas City Chiefs (backup / spot starter)",
+        conference: "AFC",
+        tier: "Volatile / bridge",
+        rankApprox: 40,
+        stats2025:
+          "One of 62 QBs to start a game in 2025; spot duty after Mahomes injury in at least one game.",
+        notes:
+          "Embodies the high‑variance backup archetype—capable of hot stretches but not viewed as a long‑term starter.",
+        source: "List of all 62 2025 starting QBs.",
+      },
+      // You can keep extending this list with more specific team/QB combos
+      // using the same shape.
+    ];
+
+    // --- Rendering logic ---
+
+    const tbody = document.getElementById("qbTableBody");
+    const searchInput = document.getElementById("search");
+    const tierFilter = document.getElementById("tierFilter");
+    const confFilter = document.getElementById("confFilter");
+    const sortBy = document.getElementById("sortBy");
+    const countBadge = document.getElementById("countBadge");
+
+    function tierClass(tier) {
+      if (tier === "Elite") return "tier-elite";
+      if (tier === "Franchise") return "tier-franchise";
+      if (tier === "Solid starter") return "tier-solid";
+      if (tier === "Volatile / bridge") return "tier-volatile";
+      if (tier === "Rookie / unknown") return "tier-rookie";
+      return "";
+    }
+
+    function render() {
+      const query = searchInput.value.trim().toLowerCase();
+      const tier = tierFilter.value;
+      const conf = confFilter.value;
+      const sortKey = sortBy.value;
+
+      let filtered = qbs.filter((qb) => {
+        const matchesSearch =
+          !query ||
+          qb.name.toLowerCase().includes(query) ||
+          qb.team.toLowerCase().includes(query);
+        const matchesTier = tier === "all" || qb.tier === tier;
+        const matchesConf = conf === "all" || qb.conference === conf;
+        return matchesSearch && matchesTier && matchesConf;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortKey === "team") {
+          return a.team.localeCompare(b.team);
+        }
+        if (sortKey === "name") {
+          return a.name.localeCompare(b.name);
+        }
+        if (sortKey === "rank") {
+          return (a.rankApprox ?? 999) - (b.rankApprox ?? 999);
+        }
+        return 0;
+      });
+
+      tbody.innerHTML = "";
+      filtered.forEach((qb) => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>
+            <div class="qb-name">${qb.name}</div>
+          </td>
+          <td>
+            <div>${qb.team}</div>
+            <div class="team">${qb.conference}</div>
+          </td>
+          <td>
+            <span class="tier-pill ${tierClass(qb.tier)}">
+              ${qb.tier}
+            </span>
+          </td>
+          <td>
+            <div class="stat-line">
+              ${qb.stats2025 || "2025 stat line: not specified in snapshot."}
+            </div>
+          </td>
+          <td>
+            <div class="notes">${qb.notes || ""}</div>
+            <div class="source-tag">Source: ${qb.source || "Public 2025 coverage"}</div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      countBadge.textContent = `${filtered.length} QB${
+        filtered.length === 1 ? "" : "s"
+      } shown`;
+    }
+
+    searchInput.addEventListener("input", render);
+    tierFilter.addEventListener("change", render);
+    confFilter.addEventListener("change", render);
+    sortBy.addEventListener("change", render);
+
+    render();
+  </script>
+</body>
+</html>
